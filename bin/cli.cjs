@@ -40,17 +40,17 @@ const REGISTRY = {
 const args = process.argv.slice(2);
 const command = args[0];
 
-console.log('\n💎 @aleric/ui — Shadcn-style Component Distribution CLI\n');
+console.log('\n💎 @aleric.dev/ui — Component Distribution CLI\n');
 
 if (!command || command === '--help' || command === '-h') {
   console.log('Uso:');
-  console.log('  npx @aleric/ui init               Inicializa el proyecto con la utilidad cn()');
-  console.log('  npx @aleric/ui add <component>    Añade un componente a src/components/ui/');
-  console.log('  npx @aleric/ui list               Lista todos los componentes disponibles\n');
+  console.log('  npx @aleric.dev/ui init               Inicializa el proyecto con la utilidad cn()');
+  console.log('  npx @aleric.dev/ui add <component>    Añade un componente a src/components/ui/');
+  console.log('  npx @aleric.dev/ui list               Lista todos los componentes disponibles\n');
   console.log('Ejemplo:');
-  console.log('  npx @aleric/ui add button');
-  console.log('  npx @aleric/ui add sidebar');
-  console.log('  npx @aleric/ui add metric-strip\n');
+  console.log('  npx @aleric.dev/ui add button');
+  console.log('  npx @aleric.dev/ui add sidebar');
+  console.log('  npx @aleric.dev/ui add metric-strip\n');
   process.exit(0);
 }
 
@@ -88,25 +88,25 @@ if (command === 'init') {
     fs.mkdirSync(uiDir, { recursive: true });
   }
   console.log('✅ Directorio listo: src/components/ui/');
-  console.log('\n✨ Proyecto listo. Ahora añade componentes con: npx @aleric/ui add <componente>\n');
+  console.log('\n✨ Proyecto listo. Ahora añade componentes con: npx @aleric.dev/ui add <componente>\n');
   process.exit(0);
 }
 
 if (command === 'add') {
   const componentName = args[1]?.toLowerCase();
   if (!componentName) {
-    console.error('❌ Debes especificar un componente. Ej: npx @aleric/ui add button');
+    console.error('❌ Debes especificar un componente. Ej: npx @aleric.dev/ui add button');
     process.exit(1);
   }
 
   const meta = REGISTRY[componentName];
   if (!meta) {
     console.error('❌ El componente "' + componentName + '" no existe en el registro.');
-    console.log('Ejecuta "npx @aleric/ui list" para ver la lista completa.');
+    console.log('Ejecuta "npx @aleric.dev/ui list" para ver la lista completa.');
     process.exit(1);
   }
 
-  // Leer el componente fuente desde el paquete @aleric/ui
+  // Leer el componente fuente desde el paquete @aleric.dev/ui
   const sourcePath = path.resolve(__dirname, '..', 'src', 'components', meta.file);
   if (!fs.existsSync(sourcePath)) {
     console.error('❌ Archivo fuente no encontrado: ' + sourcePath);
@@ -135,7 +135,7 @@ if (command === 'add') {
   }
   if (meta.requires && meta.requires.length > 0) {
     console.log('🔗 Este componente utiliza otros átomos. Te recomendamos añadir también:');
-    meta.requires.forEach(req => console.log('   npx @aleric/ui add ' + req));
+    meta.requires.forEach(req => console.log('   npx @aleric.dev/ui add ' + req));
   }
   console.log('');
   process.exit(0);

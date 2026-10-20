@@ -1,23 +1,23 @@
-# @aleric/ui
+# @aleric.dev/ui
 
 > **Sistema de Diseño Atómico y Componentes UI Limpios para React 19 y Tailwind CSS**
 
-`@aleric/ui` es una biblioteca de componentes visuales desacoplados, 100% tipados con TypeScript y listos para construir dashboards modernos, paneles SaaS y aplicaciones multi-tenant sin dependencias de marcas propietarias.
+`@aleric.dev/ui` es una biblioteca de componentes visuales desacoplados, 100% tipados con TypeScript y listos para construir dashboards modernos, paneles SaaS y aplicaciones multi-tenant sin dependencias de marcas propietarias.
 
 ---
 
 ## 📦 Instalación
 
 ```bash
-npm install @aleric/ui
+npm install @aleric.dev/ui
 # o con pnpm
-pnpm add @aleric/ui
+pnpm add @aleric.dev/ui
 ```
 
 Importa la hoja de estilos en tu punto de entrada (`main.tsx` o `App.tsx`):
 
 ```tsx
-import '@aleric/ui/dist/styles.css';
+import '@aleric.dev/ui/dist/styles.css';
 ```
 
 ---
@@ -69,7 +69,7 @@ import {
   Card, 
   StatusBadge, 
   Button 
-} from '@aleric/ui';
+} from '@aleric.dev/ui';
 import { LayoutDashboard, Users, Activity } from 'lucide-react';
 
 export function DashboardExample() {
