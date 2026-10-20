@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/aleric-dev/ui.git"
+    "url": "git+https://github.com/aleric-dev/ui.git"
   },
   "homepage": "https://github.com/aleric-dev/ui#readme",
   "type": "module",
@@ -65,7 +65,7 @@
     "vite": "^6.2.0"
   },
   "bin": {
-    "@aleric.dev/ui": "./bin/cli.cjs",
-    "aleric-ui": "./bin/cli.cjs"
+    "aleric-ui": "bin/cli.cjs",
+    "ui": "bin/cli.cjs"
   }
 }
