@@ -8,3 +8,4 @@ export * from './StatusBadge';
 export * from './DatePicker';
 export * from './MarkdownRenderer';
 export * from './ModalSplitLayout';
+export * from './ModalStepLayout';
