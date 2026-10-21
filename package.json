@@ -36,6 +36,8 @@
     "build:lib": "vite build --config vite.config.lib.ts && tsc -p tsconfig.lib.json",
     "prepublishOnly": "npm run build:lib",
     "preview": "vite preview",
+    "release:auto": "node scripts/auto-release.cjs",
+    "release:dry": "node scripts/auto-release.cjs --dry-run",
     "release:patch": "node scripts/release.cjs patch",
     "release:minor": "node scripts/release.cjs minor",
     "release:major": "node scripts/release.cjs major"

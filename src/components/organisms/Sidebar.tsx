@@ -320,16 +320,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {/* Desktop sidebar */}
       <div className="hidden md:block shrink-0">{sidebarContent}</div>
 
-      {/* Mobile drawer with backdrop */}
-      {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden flex">
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
-            onClick={onMobileClose}
-          />
-          <div className="relative z-10">{sidebarContent}</div>
+      {/* Mobile drawer with backdrop and smooth animations */}
+      <div
+        className={cn(
+          'fixed inset-0 z-50 md:hidden pointer-events-none',
+          mobileOpen && 'pointer-events-auto'
+        )}
+        aria-hidden={!mobileOpen}
+      >
+        <div
+          className={cn(
+            'fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300 ease-out',
+            mobileOpen ? 'opacity-100' : 'opacity-0'
+          )}
+          onClick={onMobileClose}
+        />
+        <div
+          className={cn(
+            'fixed inset-y-0 left-0 z-50 w-64 max-w-[85vw] h-full bg-white dark:bg-[#0D121F] shadow-2xl overflow-hidden transition-transform duration-300 ease-out will-change-transform flex flex-col',
+            mobileOpen ? 'translate-x-0' : '-translate-x-full'
+          )}
+        >
+          {sidebarContent}
         </div>
-      )}
+      </div>
     </>
   );
 };
