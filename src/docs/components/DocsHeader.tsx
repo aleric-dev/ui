@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Sun, Moon, Terminal, BookOpen, Layers } from 'lucide-react';
+import { Sun, Moon, Terminal, BookOpen, Layers, History } from 'lucide-react';
 import { SocialIcon } from '../../index';
 
 export interface DocsHeaderProps {
@@ -17,6 +17,7 @@ export const DocsHeader: React.FC<DocsHeaderProps> = ({
   const isComponentsActive = location.pathname.startsWith('/docs/components');
   const isInstallActive = location.pathname === '/docs/installation';
   const isDocsActive = location.pathname === '/docs/documentation';
+  const isChangelogActive = location.pathname === '/docs/changelog';
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-md transition-colors duration-200">
@@ -76,6 +77,17 @@ export const DocsHeader: React.FC<DocsHeaderProps> = ({
             >
               <BookOpen className="w-3.5 h-3.5" />
               Documentación
+            </NavLink>
+            <NavLink
+              to="/docs/changelog"
+              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                isChangelogActive
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              Changelog
             </NavLink>
           </nav>
         </div>
