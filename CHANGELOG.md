@@ -9,6 +9,25 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-10-22
+
+### Added / Features
+- feat: add automated release script, PR title validation workflow, and governance guide (`2ec56d2`)
+- feat: add StepTimeline atom component for multi-step progress tracking (`83fa40a`)
+- feat: add StepTimeline and ModalStepLayout components with index exports (`238921c`)
+- feat: add ModalSplitLayout, DatePicker, Select, and Sidebar components along with CI/CD release workflows (`b70385b`)
+- feat: add documentation layout, components registry, and navigation sidebar for ui package (`a058be2`)
+- feat: add Sidebar organism component with collapsible groups and flyout navigation (`54010b3`)
+- feat: add Select component and initialize UI package structure (`7668ee6`)
+
+### Maintenance & Chore
+- chore: update repository URL protocol and revise binary executable paths in package.json (`8094a52`)
+
+### Other Changes
+- Merge pull request #1 from aleric-dev/fix/governance-and-components (`43a3786`)
+
 ### Planned
 - Soporte para temas personalizables vía CSS Variables dinámicas.
 - Componente `DataTable` con ordenamiento y paginación integrada.
