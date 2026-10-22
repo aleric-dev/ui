@@ -1,0 +1,37 @@
+name: PR Validation & Typecheck
+
+on:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Verify Compilation & SemVer Preview
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Typecheck & Build Library (.d.ts + bundles)
+        run: npm run build:lib
+
+      - name: Build Showcase Demo
+        run: npm run build
+
+      - name: Preview Version Bump & Release Notes (Dry Run)
+        run: node scripts/auto-release.cjs --dry-run

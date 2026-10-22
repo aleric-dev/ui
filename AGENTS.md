@@ -97,4 +97,42 @@ npm publish --access public
 > ⚠️ **Regla de Validación Mandatoria**: Antes de finalizar cualquier tarea o entregar código, ejecuta siempre `npm run build` y `npm run build:lib` para garantizar 0 errores de compilación y 0 fallos de tipado TypeScript.
 
 ---
+
+## 🌿 5. Protocolo Estricto de Ramas Git y Versionado Semántico (SemVer)
+
+Al realizar cualquier cambio o evolución en la librería `@aleric.dev/ui`, DEBES cumplir rigurosamente el siguiente protocolo de control de versiones y ramas:
+
+### 5.1. Creación Mandatoria de Nueva Rama por Versión:
+* **Siempre se crea una nueva rama** antes de realizar modificaciones de código, asociada a la siguiente versión planificada:
+  - Formato sugerido de rama: `release/vX.Y.Z` o `feat/vX.Y.Z-<descripcion-corta>`.
+
+### 5.2. Criterios de Incremento de Versión (SemVer):
+1. **Cambio Pequeño (Incrementar PATCH — `v0.1.X` ➔ `v0.1.X+1`)**:
+   - Ajustes cosméticos y de espaciado.
+   - Correcciones de bugs visuales o linter.
+   - Micro-animaciones o mejoras internas sin alterar interfaces públicas.
+2. **Cambio Mediano / Funcional (Incrementar MINOR — `v0.X.0` ➔ `v0.X+1.0`)**:
+   - Creación de nuevos componentes (átomos, moléculas, organismos, templates).
+   - Incorporación de nuevas props, variantes, temas o funcionalidades aditivas que mantienen compatibilidad hacia atrás.
+3. **Cambio Grande / Breaking Change (Incrementar MAJOR — `vX.0.0` ➔ `vX+1.0.0`)**:
+   - **SOLO SI EL USUARIO LO DICE EXPLÍCITAMENTE**: Está terminantemente prohibido incrementar la versión Major de manera autónoma. Únicamente se eleva a la siguiente Major si el usuario lo ordena de forma literal en su mensaje.
+
+### 5.3. Pipeline Automatizado de CI/CD (GitHub Actions):
+El repositorio cuenta con automatización integral en `.github/workflows/`:
+1. **Validación de Pull Requests (`pr-check.yml`)**:
+   - Se ejecuta en todo PR hacia `main`.
+   - Verifica `npm ci`, compilación de la librería (`npm run build:lib`), compilación de la web (`npm run build`), y ejecuta `node scripts/auto-release.cjs --dry-run` para previsualizar el incremento SemVer y las notas de release calculadas.
+2. **Release y Changelog Automático al Mezclar en `main` (`release.yml`)**:
+   - Al mezclarse un PR en `main`, GitHub Actions ejecuta `node scripts/auto-release.cjs`.
+   - Analiza los commits nuevos según **Conventional Commits**:
+     - `feat:` ➔ Incremento MINOR (`0.X.0` ➔ `0.X+1.0`).
+     - `fix:`, `refactor:`, `style:`, `chore:` ➔ Incremento PATCH (`0.1.X` ➔ `0.1.X+1`).
+     - `BREAKING CHANGE:` ➔ Incremento MAJOR (`X.0.0` ➔ `X+1.0.0`).
+   - Actualiza automáticamente `package.json` con la nueva versión.
+   - Añade la nueva sección estructurada al `CHANGELOG.md` con las categorías: *Added / Features*, *Fixed / Bug Fixes*, *Changed / Improvements*, *Maintenance & Chore*.
+   - Compila la librería y crea el commit `chore(release): vX.Y.Z [skip ci]`.
+   - Crea el Git Tag `vX.Y.Z` y lo sube al repositorio.
+   - Publica la **GitHub Release** oficial adjuntando los bundles compilados (`dist/index.js`, `dist/index.cjs`, `dist/ui.css`, `dist/index.d.ts`).
+
+---
 *© Aleric.dev — @aleric.dev/ui Design System & Documentation Hub.*

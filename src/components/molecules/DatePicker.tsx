@@ -57,11 +57,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  const [popoverCoords, setPopoverCoords] = useState<{ top: number; left: number; openUp: boolean }>({
-    top: 0,
-    left: 0,
-    openUp: false,
-  });
+  const [popoverCoords, setPopoverCoords] = useState<{ top: number; left: number; openUp: boolean } | null>(null);
 
   const selectedDate = useMemo(() => (value ? parseDateString(value) : null), [value]);
   const [viewDate, setViewDate] = useState<Date>(() => selectedDate || new Date());
@@ -72,25 +68,53 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     }
   }, [value]);
 
-  const updatePosition = useCallback(() => {
-    if (!triggerRef.current) return;
+  const calculatePosition = useCallback(() => {
+    if (!triggerRef.current) return null;
     const rect = triggerRef.current.getBoundingClientRect();
     const popoverHeight = 360;
+    const popoverWidth = 288;
     const spaceBelow = window.innerHeight - rect.bottom;
     const openUp = spaceBelow < popoverHeight && rect.top > popoverHeight;
 
-    setPopoverCoords({
-      top: openUp ? rect.top - popoverHeight - 6 : rect.bottom + 6,
-      left: align === 'right' ? rect.right - 280 : rect.left,
+    let left = align === 'right' ? rect.right - popoverWidth : rect.left;
+    if (left + popoverWidth > window.innerWidth - 12) {
+      left = window.innerWidth - popoverWidth - 12;
+    }
+    if (left < 12) {
+      left = 12;
+    }
+
+    return {
+      top: Math.round(openUp ? rect.top - popoverHeight - 6 : rect.bottom + 6),
+      left: Math.round(left),
       openUp,
-    });
+    };
   }, [align]);
+
+  const handleToggle = () => {
+    if (disabled) return;
+    if (!isOpen) {
+      const nextCoords = calculatePosition();
+      if (nextCoords) {
+        setPopoverCoords(nextCoords);
+        setIsOpen(true);
+      }
+    } else {
+      setIsOpen(false);
+      setPopoverCoords(null);
+    }
+  };
 
   useEffect(() => {
     if (isOpen) {
-      updatePosition();
-      const handleScroll = () => updatePosition();
-      const handleResize = () => updatePosition();
+      const handleScroll = () => {
+        const nextCoords = calculatePosition();
+        if (nextCoords) setPopoverCoords(nextCoords);
+      };
+      const handleResize = () => {
+        const nextCoords = calculatePosition();
+        if (nextCoords) setPopoverCoords(nextCoords);
+      };
       window.addEventListener('scroll', handleScroll, true);
       window.addEventListener('resize', handleResize);
       return () => {
@@ -98,7 +122,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         window.removeEventListener('resize', handleResize);
       };
     }
-  }, [isOpen, updatePosition]);
+  }, [isOpen, calculatePosition]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -111,10 +135,14 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         !triggerRef.current.contains(target)
       ) {
         setIsOpen(false);
+        setPopoverCoords(null);
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setPopoverCoords(null);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -196,6 +224,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const handleSelect = (dateStr: string) => {
     onChange(dateStr);
     setIsOpen(false);
+    setPopoverCoords(null);
   };
 
   const handleShortcut = (daysFromToday: number) => {
@@ -205,6 +234,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     onChange(str);
     setViewDate(d);
     setIsOpen(false);
+    setPopoverCoords(null);
   };
 
   const sizeStyles = {
@@ -219,7 +249,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         ref={triggerRef}
         type="button"
         disabled={disabled}
-        onClick={() => !disabled && setIsOpen(!isOpen)}
+        onClick={handleToggle}
         className={`flex items-center justify-between border transition-all duration-150 cursor-pointer select-none ${sizeStyles} ${
           disabled
             ? 'opacity-50 cursor-not-allowed bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800'
@@ -238,6 +268,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
       </button>
 
       {isOpen &&
+        popoverCoords &&
         createPortal(
           <div
             ref={popoverRef}
@@ -245,7 +276,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               position: 'fixed',
               top: `${popoverCoords.top}px`,
               left: `${popoverCoords.left}px`,
-              zIndex: 9999,
+              zIndex: 10005,
             }}
             className="w-72 bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-3 select-none text-slate-900 dark:text-slate-100 animate-in fade-in zoom-in-95 duration-100"
           >
