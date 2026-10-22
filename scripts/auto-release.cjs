@@ -76,7 +76,7 @@ for (const line of commitLines) {
   // Agrupar
   if (/^feat(\([a-z-]+\))?:/i.test(subject)) {
     categorized.features.push(item);
-  } else if (/^fix(\([a-z-]+\))?:/i.test(subject)) {
+  } else if (/^(fix|hotfix)(\([a-z-]+\))?:/i.test(subject)) {
     categorized.fixes.push(item);
   } else if (/^(refactor|perf|style)(\([a-z-]+\))?:/i.test(subject)) {
     categorized.improvements.push(item);
