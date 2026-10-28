@@ -484,6 +484,43 @@ export const COMPONENTS_REGISTRY: ComponentItem[] = [
       { name: 'onMarkAsRead', type: '(id: string) => void', default: 'undefined', description: 'Callback al marcar como leída.' },
     ],
   },
+  {
+    id: 'sidebar',
+    name: 'Sidebar',
+    category: 'organisms',
+    description: 'Barra lateral de navegación colapsable con soporte de acordeón, flyout submenus en hover y reutilización estricta de items.',
+    cliCommand: 'npx @aleric.dev/ui add sidebar',
+    importCode: "import { Sidebar, type NavGroup, type NavItem } from '@aleric.dev/ui';",
+    exampleCode: `<Sidebar
+  brand={{ name: 'Aleric Dev', subtitle: 'Admin Hub' }}
+  groups={[
+    {
+      id: 'general',
+      label: 'General',
+      items: [
+        { id: 'dash', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" />, active: true },
+      ],
+    },
+    {
+      id: 'editorial',
+      label: 'Marketing Editorial',
+      items: [
+        { id: 'cal', label: 'Calendario', icon: <Calendar className="w-4 h-4" /> },
+        { id: 'posts', label: 'Publicaciones', icon: <Layers className="w-4 h-4" /> },
+      ],
+    },
+  ]}
+  collapsed={false}
+  onToggleCollapse={() => {}}
+/>`,
+    props: [
+      { name: 'groups', type: 'NavGroup[]', default: '[]', description: 'Grupos y listas de items de navegación canónicos (reutilizados en modo abierto y cerrado).' },
+      { name: 'brand', type: 'SidebarBrand', default: 'undefined', description: 'Logotipo, título y subtítulo de marca.' },
+      { name: 'collapsed', type: 'boolean', default: 'false', description: 'Estado colapsado (rail estrecho de 64px con flyouts flotantes en hover).' },
+      { name: 'onToggleCollapse', type: '() => void', default: 'undefined', description: 'Función callback para alternar entre expandido y colapsado.' },
+      { name: 'footer', type: 'React.ReactNode', default: 'undefined', description: 'Slot inferior para menú de usuario, perfil o cierre de sesión.' },
+    ],
+  },
 
   // ==========================================
   // TEMPLATES
