@@ -66,25 +66,49 @@ for (const line of commitLines) {
   const shortHash = hash ? hash.substring(0, 7) : '';
   const item = { hash: shortHash, subject, author };
 
+  // Ignorar commits de sincronización o merge de ramas automáticos y del bot de release
+  if (
+    subject.includes('chore(release):') ||
+    /^Merge branch /i.test(subject) ||
+    /^Merge remote-tracking branch /i.test(subject)
+  ) {
+    continue;
+  }
+
+  // Si es un commit "Merge pull request #X from org/branch", extraer la pista de la rama si aplica,
+  // pero no ensuciar el changelog con la línea de merge si ya vienen los commits individuales.
+  if (/^Merge pull request #\d+ from /i.test(subject)) {
+    if (/from [^/]+\/feat\//i.test(subject) && bumpType !== 'major') {
+      bumpType = 'minor';
+    }
+    continue;
+  }
+
+  const isFeat =
+    /^feat(\([a-z0-9_-]+\))?!?:|^feat\/|^feat\b/i.test(subject);
+  const isFix =
+    /^(fix|hotfix)(\([a-z0-9_-]+\))?!?:|^(fix|hotfix)\//i.test(subject);
+  const isImprovement =
+    /^(refactor|perf|style)(\([a-z0-9_-]+\))?!?:|^(refactor|perf|style)\//i.test(subject);
+  const isMaintenance =
+    /^(chore|docs|test|ci|build)(\([a-z0-9_-]+\))?!?:|^(chore|docs|test|ci|build)\//i.test(subject);
+
   // Detectar Breaking Change
-  if (subject.includes('BREAKING CHANGE') || /^[a-z]+(\([a-z-]+\))?!:/.test(subject)) {
+  if (subject.includes('BREAKING CHANGE') || /^[a-z]+(\([a-z0-9_-]+\))?!:/i.test(subject)) {
     bumpType = 'major';
-  } else if (/^feat(\([a-z-]+\))?:/i.test(subject) && bumpType !== 'major') {
+  } else if (isFeat && bumpType !== 'major') {
     bumpType = 'minor';
   }
 
   // Agrupar
-  if (/^feat(\([a-z-]+\))?:/i.test(subject)) {
+  if (isFeat) {
     categorized.features.push(item);
-  } else if (/^(fix|hotfix)(\([a-z-]+\))?:/i.test(subject)) {
+  } else if (isFix) {
     categorized.fixes.push(item);
-  } else if (/^(refactor|perf|style)(\([a-z-]+\))?:/i.test(subject)) {
+  } else if (isImprovement) {
     categorized.improvements.push(item);
-  } else if (/^(chore|docs|test|ci|build)(\([a-z-]+\))?:/i.test(subject)) {
-    // Excluir commits de release generados por el bot
-    if (!subject.includes('chore(release):')) {
-      categorized.maintenance.push(item);
-    }
+  } else if (isMaintenance) {
+    categorized.maintenance.push(item);
   } else {
     categorized.other.push(item);
   }

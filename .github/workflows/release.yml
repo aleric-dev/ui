@@ -11,7 +11,7 @@ permissions:
 jobs:
   auto-release:
     name: Auto Changelog, Version Bump & Tag
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):') && !contains(github.event.head_commit.message, '[skip release]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository (Full History)
@@ -49,7 +49,7 @@ jobs:
         if: steps.release.outputs.has_release == 'true'
         run: |
           git add package.json CHANGELOG.md
-          git commit -m "chore(release): ${{ steps.release.outputs.tag }} [skip ci]"
+          git commit -m "chore(release): ${{ steps.release.outputs.tag }}"
           git tag ${{ steps.release.outputs.tag }}
           git push origin main --tags
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Sun, Moon, Terminal, BookOpen, Layers, History } from 'lucide-react';
 import { SocialIcon } from '../../index';
+import pkg from '../../../package.json';
 
 export interface DocsHeaderProps {
   theme: 'light' | 'dark';
@@ -38,7 +39,7 @@ export const DocsHeader: React.FC<DocsHeaderProps> = ({
                 @aleric.dev/ui
               </span>
               <span className="px-1.5 py-0.5 text-[10px] font-mono font-medium rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                v0.1.0
+                v{pkg.version}
               </span>
             </div>
           </Link>
