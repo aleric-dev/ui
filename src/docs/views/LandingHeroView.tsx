@@ -19,6 +19,7 @@ import {
   MetricStatCard,
   DatePicker,
 } from '../../index';
+import pkg from '../../../package.json';
 
 export interface LandingHeroViewProps {
   onExploreComponents?: () => void;
@@ -69,7 +70,7 @@ export const LandingHeroView: React.FC<LandingHeroViewProps> = ({
           {/* Announcement Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs text-slate-700 dark:text-slate-300 hover:border-slate-300 transition-colors">
             <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-semibold text-indigo-600 dark:text-indigo-400">@aleric.dev/ui v0.1.0</span>
+            <span className="font-semibold text-indigo-600 dark:text-indigo-400">@aleric.dev/ui v{pkg.version}</span>
             <span className="text-slate-300 dark:text-slate-700">|</span>
             <span className="text-slate-600 dark:text-slate-400">Diseño Atómico para React 19</span>
             <ArrowRight className="w-3 h-3 text-slate-400" />

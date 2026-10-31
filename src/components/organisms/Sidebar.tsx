@@ -1,5 +1,5 @@
 import React from 'react';
-import { PanelLeftClose, PanelLeftOpen, X, ChevronDown } from 'lucide-react';
+import { PanelLeftClose, PanelLeftOpen, X, ChevronDown, ExternalLink } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 export interface NavItem {
@@ -10,12 +10,16 @@ export interface NavItem {
   badge?: string | number;
   badgeVariant?: 'default' | 'success' | 'warning' | 'error';
   href?: string;
+  external?: boolean;
+  target?: string;
+  dataTour?: string;
   onClick?: () => void;
 }
 
 export interface NavGroup {
   id?: string;
   label?: string;
+  icon?: React.ReactNode;
   items: NavItem[];
   collapsible?: boolean;
   defaultCollapsed?: boolean;
@@ -207,12 +211,52 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 >
                   {group.items.map((item) => {
                     const badgeColor = badgeColors[item.badgeVariant || 'default'];
+                    const isExternal = item.external || item.target === '_blank';
+
+                    if (item.href) {
+                      return (
+                        <div key={item.id} className="relative group/navitem">
+                          <a
+                            href={item.href}
+                            target={item.target || (item.external ? '_blank' : undefined)}
+                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                            onClick={item.onClick}
+                            data-tour={item.dataTour}
+                            className={cn(
+                              'w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none',
+                              item.active
+                                ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-200/70 dark:border-indigo-800/60 shadow-xs'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 border border-transparent'
+                            )}
+                          >
+                            <span className="shrink-0 flex items-center justify-center">
+                              {item.icon}
+                            </span>
+                            <span className="truncate flex-1 text-left">{item.label}</span>
+                            {item.badge !== undefined && (
+                              <span
+                                className={cn(
+                                  'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold',
+                                  badgeColor
+                                )}
+                              >
+                                {item.badge}
+                              </span>
+                            )}
+                            {isExternal && (
+                              <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity shrink-0 ml-1" />
+                            )}
+                          </a>
+                        </div>
+                      );
+                    }
 
                     return (
                       <div key={item.id} className="relative group/navitem">
                         <button
                           type="button"
                           onClick={item.onClick}
+                          data-tour={item.dataTour}
                           className={cn(
                             'w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none',
                             item.active
@@ -244,11 +288,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }
 
           // Modo colapsado: SIEMPRE muestra el Flyout Menu con encabezado y lista de items
+          const groupIcon = group.icon || primaryItem?.icon;
+
           return (
             <div key={groupKey} className="relative group/flyout">
               <button
                 type="button"
-                onClick={primaryItem.onClick}
+                onClick={primaryItem?.onClick}
                 className={cn(
                   'w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer select-none',
                   isGroupActive
@@ -256,7 +302,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80'
                 )}
               >
-                {primaryItem.icon}
+                {groupIcon}
               </button>
 
               <div className="absolute left-full top-0 ml-3 w-60 p-2 bg-white/95 dark:bg-[#0D121F]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl opacity-0 pointer-events-none group-hover/flyout:opacity-100 group-hover/flyout:pointer-events-auto transition-all duration-150 ease-out translate-x-1 group-hover/flyout:translate-x-0 z-50 before:absolute before:-left-3 before:top-0 before:w-3 before:h-full">
@@ -268,27 +314,60 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   </div>
                 )}
                 <div className="space-y-0.5">
-                  {group.items.map((it) => (
-                    <button
-                      key={it.id}
-                      type="button"
-                      onClick={it.onClick}
-                      className={cn(
-                        'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
-                        it.active
-                          ? 'bg-indigo-600 text-white shadow-xs'
-                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                      )}
-                    >
-                      <span className="mr-2.5 shrink-0">{it.icon}</span>
-                      <span className="truncate flex-1 text-left">{it.label}</span>
-                      {it.badge !== undefined && (
-                        <span className={cn('text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5', badgeColors[it.badgeVariant || 'default'])}>
-                          {it.badge}
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                  {group.items.map((it) => {
+                    const isExternal = it.external || it.target === '_blank';
+
+                    if (it.href) {
+                      return (
+                        <a
+                          key={it.id}
+                          href={it.href}
+                          target={it.target || (it.external ? '_blank' : undefined)}
+                          rel={isExternal ? 'noopener noreferrer' : undefined}
+                          onClick={it.onClick}
+                          className={cn(
+                            'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
+                            it.active
+                              ? 'bg-indigo-600 text-white shadow-xs'
+                              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                          )}
+                        >
+                          <span className="mr-2.5 shrink-0">{it.icon}</span>
+                          <span className="truncate flex-1 text-left">{it.label}</span>
+                          {it.badge !== undefined && (
+                            <span className={cn('text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5', badgeColors[it.badgeVariant || 'default'])}>
+                              {it.badge}
+                            </span>
+                          )}
+                          {isExternal && (
+                            <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0 ml-1" />
+                          )}
+                        </a>
+                      );
+                    }
+
+                    return (
+                      <button
+                        key={it.id}
+                        type="button"
+                        onClick={it.onClick}
+                        className={cn(
+                          'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
+                          it.active
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                        )}
+                      >
+                        <span className="mr-2.5 shrink-0">{it.icon}</span>
+                        <span className="truncate flex-1 text-left">{it.label}</span>
+                        {it.badge !== undefined && (
+                          <span className={cn('text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5', badgeColors[it.badgeVariant || 'default'])}>
+                            {it.badge}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>

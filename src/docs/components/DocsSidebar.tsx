@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, Layers, Box, Cpu, Layout, BookOpen, Terminal } from 'lucide-react';
+import { Search, Layers, Box, Cpu, Layout, BookOpen, Terminal, History } from 'lucide-react';
 import { COMPONENTS_REGISTRY, type ComponentItem } from '../data/componentsRegistry';
 
 export const DocsSidebar: React.FC = () => {
@@ -97,6 +97,21 @@ export const DocsSidebar: React.FC = () => {
               >
                 <span>Documentación Adicional</span>
                 <BookOpen className="w-3.5 h-3.5 text-slate-400" />
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                to="/docs/changelog"
+                className={({ isActive }) =>
+                  `w-full text-left px-3 py-1.5 rounded-lg transition-colors flex items-center justify-between ${
+                    isActive
+                      ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-semibold border-l-2 border-indigo-600'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/40'
+                  }`
+                }
+              >
+                <span>Historial de Cambios</span>
+                <History className="w-3.5 h-3.5 text-slate-400" />
               </NavLink>
             </li>
           </ul>

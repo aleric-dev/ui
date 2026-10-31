@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Sun, Moon, Terminal, BookOpen, Layers } from 'lucide-react';
+import { Sun, Moon, Terminal, BookOpen, Layers, History } from 'lucide-react';
 import { SocialIcon } from '../../index';
+import pkg from '../../../package.json';
 
 export interface DocsHeaderProps {
   theme: 'light' | 'dark';
@@ -17,6 +18,7 @@ export const DocsHeader: React.FC<DocsHeaderProps> = ({
   const isComponentsActive = location.pathname.startsWith('/docs/components');
   const isInstallActive = location.pathname === '/docs/installation';
   const isDocsActive = location.pathname === '/docs/documentation';
+  const isChangelogActive = location.pathname === '/docs/changelog';
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-[#0B0F19]/80 backdrop-blur-md transition-colors duration-200">
@@ -37,7 +39,7 @@ export const DocsHeader: React.FC<DocsHeaderProps> = ({
                 @aleric.dev/ui
               </span>
               <span className="px-1.5 py-0.5 text-[10px] font-mono font-medium rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
-                v0.1.0
+                v{pkg.version}
               </span>
             </div>
           </Link>
@@ -76,6 +78,17 @@ export const DocsHeader: React.FC<DocsHeaderProps> = ({
             >
               <BookOpen className="w-3.5 h-3.5" />
               Documentación
+            </NavLink>
+            <NavLink
+              to="/docs/changelog"
+              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                isChangelogActive
+                  ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/50'
+              }`}
+            >
+              <History className="w-3.5 h-3.5" />
+              Changelog
             </NavLink>
           </nav>
         </div>

@@ -31,9 +31,8 @@ Marca las siguientes casillas:
    - Required approvals: `0` (si trabajas solo o en equipo pequeño) o `1` (si requieres revisión por pares).
    - Dismiss stale pull request approvals when new commits are pushed: Activado.
 5. ✅ **Require status checks to pass before merging**:
-   - Haz clic en **Add checks** y busca los siguientes dos jobs:
+   - Haz clic en **Add checks** y selecciona únicamente el job de compilación y previsualización SemVer:
      - `Verify Compilation & SemVer Preview` (del workflow `pr-check.yml`).
-     - `Conventional Commit Title Check` (del workflow `pr-title-check.yml`).
    - Marca la opción **Require branches to be up to date before merging**.
 
 ### Paso 5: Prohibir Bypasses (Aplica para Ti y Todos los Admins)

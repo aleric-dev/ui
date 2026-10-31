@@ -6,6 +6,7 @@ import { LandingHeroView } from '../docs/views/LandingHeroView';
 import { InstallationView } from '../docs/views/InstallationView';
 import { AdditionalDocsView } from '../docs/views/AdditionalDocsView';
 import { ComponentDetailView } from '../docs/views/ComponentDetailView';
+import { ChangelogView } from '../docs/views/ChangelogView';
 import { SocialIcon } from '../index';
 
 export const DemoApp: React.FC = () => {
@@ -47,6 +48,7 @@ export const DemoApp: React.FC = () => {
               <Route index element={<Navigate to="/docs/installation" replace />} />
               <Route path="installation" element={<InstallationView />} />
               <Route path="documentation" element={<AdditionalDocsView />} />
+              <Route path="changelog" element={<ChangelogView />} />
               <Route path="components" element={<Navigate to="/docs/components/button" replace />} />
               <Route path="components/:componentId" element={<ComponentDetailView />} />
             </Route>

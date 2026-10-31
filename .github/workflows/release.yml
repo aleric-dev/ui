@@ -11,7 +11,7 @@ permissions:
 jobs:
   auto-release:
     name: Auto Changelog, Version Bump & Tag
-    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    if: "!startsWith(github.event.head_commit.message, 'chore(release):') && !contains(github.event.head_commit.message, '[skip release]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository (Full History)
@@ -25,6 +25,7 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install Dependencies
         run: npm ci
@@ -48,7 +49,7 @@ jobs:
         if: steps.release.outputs.has_release == 'true'
         run: |
           git add package.json CHANGELOG.md
-          git commit -m "chore(release): ${{ steps.release.outputs.tag }} [skip ci]"
+          git commit -m "chore(release): ${{ steps.release.outputs.tag }}"
           git tag ${{ steps.release.outputs.tag }}
           git push origin main --tags
 
@@ -68,3 +69,10 @@ jobs:
             dist/index.d.ts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to NPM Registry
+        if: steps.release.outputs.has_release == 'true' && env.NPM_TOKEN != ''
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -10,3 +10,5 @@ export * from './Modal';
 export * from './Spinner';
 export * from './SocialIcons';
 export * from './StepTimeline';
+export * from './Table';
+export * from './Tabs';
