@@ -11,6 +11,22 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [0.3.0] - 2026-10-31
+
+### Added / Features
+- feat: add automated release workflow, governance guide, and docs components (`de0c1cc`)
+- feat: add Tabs atom, Sidebar organism, and component registry data (`cb01469`)
+- feat: add Table atom component and export it in atoms index (`c7762ce`)
+
+### Fixed / Bug Fixes
+- fix(ui): añade vista de changelog y soporte para publicacion segura en npm (`af4f8ac`)
+
+### Maintenance & Chore
+- chore: add trailing newline to node-version file (`5afdeb5`)
+- chore(ui): configura node-version y simplifica wrangler.json para cloudflare (`1ea18b0`)
+
+---
+
 ## [0.2.0] - 2026-10-22
 
 ### Added / Features
