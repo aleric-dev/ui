@@ -1,7 +1,14 @@
 import React from 'react';
 import { cn } from '../../utils/cn';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'emerald' | 'danger' | 'ghost' | 'outline';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'emerald'
+  | 'amber'
+  | 'danger'
+  | 'ghost'
+  | 'outline';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -19,6 +26,8 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border-slate-200 dark:border-slate-700 active:scale-[0.98]',
   emerald:
     'bg-emerald-600 hover:bg-emerald-500 text-white border-transparent shadow-sm shadow-emerald-600/30 font-medium active:scale-[0.98]',
+  amber:
+    'bg-amber-500 hover:bg-amber-400 text-slate-950 border-transparent shadow-sm shadow-amber-500/25 font-semibold active:scale-[0.98]',
   danger:
     'bg-rose-600 hover:bg-rose-500 text-white border-transparent shadow-sm shadow-rose-600/30 font-medium active:scale-[0.98]',
   ghost:
@@ -48,7 +57,7 @@ export const Button: React.FC<ButtonProps> = ({
     <button
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center border transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 select-none',
+        'inline-flex items-center justify-center whitespace-nowrap border transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 select-none',
         VARIANT_CLASSES[variant],
         SIZE_CLASSES[size],
         className
@@ -59,9 +68,21 @@ export const Button: React.FC<ButtonProps> = ({
         <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
       ) : (
         <>
-          {icon && iconPosition === 'left' && <span className="shrink-0">{icon}</span>}
-          {children && <span>{children}</span>}
-          {icon && iconPosition === 'right' && <span className="shrink-0">{icon}</span>}
+          {icon && iconPosition === 'left' && (
+            <span className="inline-flex items-center justify-center shrink-0">
+              {icon}
+            </span>
+          )}
+          {children && (
+            <span className="inline-flex items-center justify-center gap-1.5">
+              {children}
+            </span>
+          )}
+          {icon && iconPosition === 'right' && (
+            <span className="inline-flex items-center justify-center shrink-0">
+              {icon}
+            </span>
+          )}
         </>
       )}
     </button>
