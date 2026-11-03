@@ -11,6 +11,16 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [0.4.1] - 2026-11-03
+
+### Fixed / Bug Fixes
+- fix(ui): restaura comando de build en wrangler.json para deploy en cloudflare (`58a936f`)
+
+### Maintenance & Chore
+- chore(ui): invierte orden de build en release.yml para preservar bundles de librería [skip release] (`cb0c4a6`)
+
+---
+
 ## [0.4.0] - 2026-11-03
 
 ### Added / Features
