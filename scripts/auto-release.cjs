@@ -69,6 +69,7 @@ for (const line of commitLines) {
   // Ignorar commits de sincronización o merge de ramas automáticos y del bot de release
   if (
     subject.includes('chore(release):') ||
+    subject.includes('[skip release]') ||
     /^Merge branch /i.test(subject) ||
     /^Merge remote-tracking branch /i.test(subject)
   ) {

@@ -12,7 +12,7 @@ permissions:
 jobs:
   auto-release:
     name: Auto Changelog, Version Bump & Tag
-    if: "!startsWith(github.event.head_commit.message, 'chore(release):') && !contains(github.event.head_commit.message, '[skip release]')"
+    if: "github.event_name == 'workflow_dispatch' || (!startsWith(github.event.head_commit.message, 'chore(release):') && !contains(github.event.head_commit.message, '[skip release]'))"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository (Full History)
