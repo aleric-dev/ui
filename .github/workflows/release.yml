@@ -72,13 +72,19 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to NPM Registry
-        if: steps.release.outputs.has_release == 'true'
+        if: steps.release.outputs.has_release == 'true' || github.event_name == 'workflow_dispatch'
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [ -z "$NPM_TOKEN" ]; then
-            echo "⚠️ NPM_TOKEN no está configurado en GitHub Secrets. Omitiendo publicación en npm."
+            echo "::warning::NPM_TOKEN no está configurado en Settings > Secrets and variables > Actions (Repository secrets). Omitiendo publicación en npm."
+            exit 0
+          fi
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          PUBLISHED_VERSION=$(npm view "@aleric.dev/ui@${CURRENT_VERSION}" version 2>/dev/null || echo "")
+          if [ "$PUBLISHED_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "✅ @aleric.dev/ui@${CURRENT_VERSION} ya está publicado en npm."
             exit 0
           fi
           npm publish --access public
