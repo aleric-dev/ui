@@ -39,11 +39,11 @@ jobs:
         id: release
         run: node scripts/auto-release.cjs
 
-      - name: Build Library Bundles & Showcase
+      - name: Build Showcase & Library Bundles
         if: steps.release.outputs.has_release == 'true'
         run: |
-          npm run build:lib
           npm run build
+          npm run build:lib
 
       - name: Commit Version Bump & Tag
         if: steps.release.outputs.has_release == 'true'
