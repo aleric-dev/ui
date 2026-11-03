@@ -11,6 +11,16 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [0.4.0] - 2026-11-03
+
+### Added / Features
+- feat(ui): añade variante amber y corrige alineación de iconos en Button (`6e48d2a`)
+
+### Fixed / Bug Fixes
+- fix(ui): corrige evaluación de NPM_TOKEN en workflow de release (`418304f`)
+
+---
+
 ## [0.3.0] - 2026-10-31
 
 ### Added / Features
