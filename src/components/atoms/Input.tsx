@@ -13,7 +13,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="relative flex items-center w-full">
         {leftIcon && (
-          <span className="absolute left-3 text-slate-500 dark:text-slate-400 pointer-events-none shrink-0 flex items-center">
+          <span className="absolute left-3 z-10 text-slate-500 dark:text-slate-400 pointer-events-none shrink-0 flex items-center">
             {leftIcon}
           </span>
         )}
