@@ -42,6 +42,11 @@ export interface SidebarProps {
   onToggleCollapse?: () => void;
   mobileOpen?: boolean;
   onMobileClose?: () => void;
+  /**
+   * Color primario personalizado de la marca del cliente (ej. `#4F46E5`, `#059669`, `#EA580C`).
+   * Colorea los ítems activos, encabezados de categoría activa e isotipo del Sidebar.
+   */
+  primaryColor?: string;
   className?: string;
 }
 
@@ -53,6 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse,
   mobileOpen = false,
   onMobileClose,
+  primaryColor,
   className = '',
 }) => {
   // Estado para el grupo abierto actualmente (acordeón: solo 1 abierto a la vez)
@@ -79,331 +85,423 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const badgeColors: Record<string, string> = {
-    default: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700',
-    success: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
-    warning: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+    default:
+      'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700',
+    success:
+      'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+    warning:
+      'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
     error: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20',
   };
 
-  const sidebarContent = (
-    <aside
-      className={cn(
-        'h-screen bg-white/95 dark:bg-[#0D121F]/95 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] select-none shrink-0',
-        collapsed ? 'w-16 overflow-visible' : 'w-64 overflow-hidden',
-        className
-      )}
-    >
-      {/* 1. Brand Header */}
-      <div className="h-16 flex items-center px-3 border-b border-slate-200 dark:border-slate-800 shrink-0 relative justify-between">
-        {brand && (
-          <div
-            onClick={brand.onClick}
-            className={cn(
-              'flex items-center min-w-0 transition-opacity',
-              brand.onClick ? 'cursor-pointer hover:opacity-80' : '',
-              collapsed ? 'justify-center w-full' : 'gap-2.5 pl-1'
-            )}
-            title={brand.name}
-          >
-            {collapsed ? (
-              brand.collapsedLogo || brand.logo || (
-                <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-mono font-bold flex items-center justify-center text-sm shadow-xs">
-                  {brand.name ? brand.name.charAt(0).toUpperCase() : 'A'}
-                </div>
-              )
-            ) : (
-              <>
-                {brand.logo}
-                {(brand.name || brand.subtitle) && (
-                  <div className="flex flex-col min-w-0">
-                    {brand.name && (
-                      <span className="text-xs font-mono font-bold text-slate-900 dark:text-white truncate tracking-tight">
-                        {brand.name}
-                      </span>
-                    )}
-                    {brand.subtitle && (
-                      <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
-                        {brand.subtitle}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+  const activePillStyle: React.CSSProperties | undefined = primaryColor
+    ? {
+        backgroundColor: primaryColor,
+        color: '#ffffff',
+        borderColor: primaryColor,
+      }
+    : undefined;
+
+  const activeTextStyle: React.CSSProperties | undefined = primaryColor
+    ? { color: primaryColor }
+    : undefined;
+
+  const renderSidebarPanel = (isMobileDrawer: boolean) => {
+    const isCollapsed = isMobileDrawer ? false : collapsed;
+
+    return (
+      <aside
+        className={cn(
+          'h-screen bg-white dark:bg-[#0D121F] border-r border-slate-200 dark:border-slate-800 flex flex-col transition-[width] duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] select-none shrink-0',
+          isCollapsed ? 'w-16 overflow-visible' : 'w-64 overflow-hidden',
+          className
         )}
-
-        {!collapsed && onToggleCollapse && (
-          <button
-            type="button"
-            onClick={onToggleCollapse}
-            title="Colapsar menú"
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
-          >
-            <PanelLeftClose className="w-4 h-4" />
-          </button>
-        )}
-
-        {onMobileClose && (
-          <button
-            type="button"
-            onClick={onMobileClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors md:hidden"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        )}
-      </div>
-
-      {/* 2. Navigation Items */}
-      <div className={cn(
-        'flex-1 custom-scrollbar',
-        collapsed
-          ? 'overflow-visible p-2 space-y-2 flex flex-col items-center'
-          : 'overflow-y-auto overflow-x-hidden p-2.5 space-y-4'
-      )}>
-        {groups.filter((g) => g.items && g.items.length > 0).map((group, groupIdx) => {
-          const groupKey = group.id || `group-${groupIdx}`;
-          const isCollapsible = group.collapsible !== false && Boolean(group.label);
-          const isOpen = !isCollapsible || openGroupKey === groupKey;
-          const isGroupActive = group.items.some((it) => it.active);
-          const activeItem = group.items.find((it) => it.active);
-          const primaryItem = activeItem || group.items[0];
-
-          if (!collapsed) {
-            return (
-              <div key={groupKey} className="space-y-1">
-                {group.label && (
-                  isCollapsible ? (
-                    <button
-                      type="button"
-                      onClick={() => toggleGroup(groupKey)}
-                      className={cn(
-                        'w-full flex items-center justify-between px-2.5 py-1 text-[10px] font-mono uppercase tracking-widest transition-colors cursor-pointer select-none group/gh',
-                        isGroupActive
-                          ? 'text-indigo-600 dark:text-indigo-400 font-bold'
-                          : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-semibold'
-                      )}
-                    >
-                      <span className="truncate">{group.label}</span>
-                      <ChevronDown
-                        className={cn(
-                          'w-3.5 h-3.5 transition-transform duration-200 shrink-0',
-                          isGroupActive
-                            ? 'text-indigo-500 dark:text-indigo-400'
-                            : 'text-slate-400 group-hover/gh:text-slate-600 dark:group-hover/gh:text-slate-300',
-                          !isOpen && '-rotate-90'
-                        )}
-                      />
-                    </button>
-                  ) : (
-                    <div className="px-2 pb-1.5 text-[10px] font-mono font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-                      {group.label}
-                    </div>
-                  )
-                )}
-
+      >
+        {/* 1. Cabecera del Sidebar (Idéntica a admin.aleric.dev) */}
+        <div className="h-16 flex items-center px-3 border-b border-slate-200 dark:border-slate-800 shrink-0 relative justify-between">
+          {!isCollapsed ? (
+            <div className="flex items-center justify-between w-full gap-2 min-w-0">
+              {brand && (
                 <div
+                  onClick={brand.onClick}
                   className={cn(
-                    'space-y-0.5 transition-all duration-200 ease-in-out overflow-hidden',
-                    isCollapsible && !isOpen ? 'max-h-0 opacity-0' : 'max-h-[800px] opacity-100'
+                    'flex items-center gap-2.5 pl-1 min-w-0 transition-opacity',
+                    brand.onClick ? 'cursor-pointer hover:opacity-80' : ''
                   )}
+                  title={brand.name}
                 >
-                  {group.items.map((item) => {
-                    const badgeColor = badgeColors[item.badgeVariant || 'default'];
-                    const isExternal = item.external || item.target === '_blank';
-
-                    if (item.href) {
-                      return (
-                        <div key={item.id} className="relative group/navitem">
-                          <a
-                            href={item.href}
-                            target={item.target || (item.external ? '_blank' : undefined)}
-                            rel={isExternal ? 'noopener noreferrer' : undefined}
-                            onClick={item.onClick}
-                            data-tour={item.dataTour}
-                            className={cn(
-                              'w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none',
-                              item.active
-                                ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-200/70 dark:border-indigo-800/60 shadow-xs'
-                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 border border-transparent'
-                            )}
-                          >
-                            <span className="shrink-0 flex items-center justify-center">
-                              {item.icon}
-                            </span>
-                            <span className="truncate flex-1 text-left">{item.label}</span>
-                            {item.badge !== undefined && (
-                              <span
-                                className={cn(
-                                  'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold',
-                                  badgeColor
-                                )}
-                              >
-                                {item.badge}
-                              </span>
-                            )}
-                            {isExternal && (
-                              <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity shrink-0 ml-1" />
-                            )}
-                          </a>
-                        </div>
-                      );
-                    }
-
-                    return (
-                      <div key={item.id} className="relative group/navitem">
-                        <button
-                          type="button"
-                          onClick={item.onClick}
-                          data-tour={item.dataTour}
-                          className={cn(
-                            'w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-xs font-medium transition-all duration-150 cursor-pointer select-none',
-                            item.active
-                              ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold border border-indigo-200/70 dark:border-indigo-800/60 shadow-xs'
-                              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/60 border border-transparent'
-                          )}
-                        >
-                          <span className="shrink-0 flex items-center justify-center">
-                            {item.icon}
-                          </span>
-                          <span className="truncate flex-1 text-left">{item.label}</span>
-                          {item.badge !== undefined && (
-                            <span
-                              className={cn(
-                                'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold',
-                                badgeColor
-                              )}
-                            >
-                              {item.badge}
-                            </span>
-                          )}
-                        </button>
-                      </div>
-                    );
-                  })}
+                  {brand.logo || (
+                    <div
+                      style={primaryColor ? { backgroundColor: primaryColor } : undefined}
+                      className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-mono font-bold flex items-center justify-center text-xs shrink-0 shadow-xs"
+                    >
+                      {brand.name ? brand.name.slice(0, 2).toUpperCase() : 'AL'}
+                    </div>
+                  )}
+                  {(brand.name || brand.subtitle) && (
+                    <div className="flex flex-col min-w-0">
+                      {brand.name && (
+                        <span className="text-xs font-sans font-bold text-slate-900 dark:text-white truncate tracking-tight">
+                          {brand.name}
+                        </span>
+                      )}
+                      {brand.subtitle && (
+                        <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
+                          {brand.subtitle}
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
-              </div>
-            );
-          }
+              )}
 
-          // Modo colapsado: SIEMPRE muestra el Flyout Menu con encabezado y lista de items
-          const groupIcon = group.icon || primaryItem?.icon;
+              {!isMobileDrawer && onToggleCollapse && (
+                <button
+                  type="button"
+                  onClick={onToggleCollapse}
+                  title="Colapsar menú lateral"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                >
+                  <PanelLeftClose className="w-4 h-4" />
+                </button>
+              )}
 
-          return (
-            <div key={groupKey} className="relative group/flyout">
+              {isMobileDrawer && onMobileClose && (
+                <button
+                  type="button"
+                  onClick={onMobileClose}
+                  title="Cerrar menú"
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="w-full flex items-center justify-center">
               <button
                 type="button"
-                onClick={primaryItem?.onClick}
-                className={cn(
-                  'w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer select-none',
-                  isGroupActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/25'
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80'
-                )}
+                onClick={onToggleCollapse}
+                title="Expandir menú lateral"
+                className="relative w-10 h-10 flex items-center justify-center cursor-pointer group rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/80 transition-all duration-200"
               >
-                {groupIcon}
+                <div className="flex items-center justify-center transition-all duration-200 opacity-100 group-hover:opacity-0 group-hover:scale-75">
+                  {brand?.collapsedLogo || brand?.logo || (
+                    <div
+                      style={primaryColor ? { backgroundColor: primaryColor } : undefined}
+                      className="w-8 h-8 rounded-xl bg-indigo-600 text-white font-mono font-bold flex items-center justify-center text-xs shadow-xs"
+                    >
+                      {brand?.name ? brand.name.slice(0, 2).toUpperCase() : 'AL'}
+                    </div>
+                  )}
+                </div>
+
+                <div
+                  style={activeTextStyle}
+                  className="absolute inset-0 flex items-center justify-center transition-all duration-200 opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 text-indigo-600 dark:text-indigo-400"
+                >
+                  <PanelLeftOpen className="w-5 h-5" />
+                </div>
               </button>
+            </div>
+          )}
+        </div>
 
-              <div className="absolute left-full top-0 ml-3 w-60 p-2 bg-white/95 dark:bg-[#0D121F]/95 backdrop-blur-md rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl opacity-0 pointer-events-none group-hover/flyout:opacity-100 group-hover/flyout:pointer-events-auto transition-all duration-150 ease-out translate-x-1 group-hover/flyout:translate-x-0 z-50 before:absolute before:-left-3 before:top-0 before:w-3 before:h-full">
-                {group.label && (
-                  <div className="px-2.5 py-1 border-b border-slate-100 dark:border-slate-800/70 mb-1.5 flex items-center justify-between">
-                    <span className="text-[10px] font-mono uppercase tracking-widest font-bold text-indigo-600 dark:text-indigo-400">
-                      {group.label}
-                    </span>
-                  </div>
-                )}
-                <div className="space-y-0.5">
-                  {group.items.map((it) => {
-                    const isExternal = it.external || it.target === '_blank';
+        {/* 2. Navegación por Grupos Acordeón */}
+        <div
+          className={cn(
+            'flex-1 custom-scrollbar',
+            isCollapsed
+              ? 'overflow-visible p-2 space-y-2 flex flex-col items-center'
+              : 'overflow-y-auto overflow-x-hidden p-2.5 space-y-3'
+          )}
+        >
+          {groups
+            .filter((g) => g.items && g.items.length > 0)
+            .map((group, groupIdx) => {
+              const groupKey = group.id || `group-${groupIdx}`;
+              const isCollapsible = group.collapsible !== false && Boolean(group.label);
+              const isOpen = !isCollapsible || openGroupKey === groupKey;
+              const isGroupActive = group.items.some((it) => it.active);
+              const activeItem = group.items.find((it) => it.active);
+              const primaryItem = activeItem || group.items[0];
 
-                    if (it.href) {
-                      return (
-                        <a
-                          key={it.id}
-                          href={it.href}
-                          target={it.target || (it.external ? '_blank' : undefined)}
-                          rel={isExternal ? 'noopener noreferrer' : undefined}
-                          onClick={it.onClick}
+              if (!isCollapsed) {
+                return (
+                  <div key={groupKey} className="space-y-1">
+                    {group.label &&
+                      (isCollapsible ? (
+                        <button
+                          type="button"
+                          onClick={() => toggleGroup(groupKey)}
+                          style={isGroupActive ? activeTextStyle : undefined}
                           className={cn(
-                            'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
-                            it.active
-                              ? 'bg-indigo-600 text-white shadow-xs'
-                              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                            'w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-[10px] font-mono uppercase tracking-widest transition-colors cursor-pointer select-none group/gh',
+                            isGroupActive
+                              ? 'text-indigo-600 dark:text-indigo-400 font-bold'
+                              : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/40 font-semibold'
                           )}
                         >
-                          <span className="mr-2.5 shrink-0">{it.icon}</span>
-                          <span className="truncate flex-1 text-left">{it.label}</span>
-                          {it.badge !== undefined && (
-                            <span className={cn('text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5', badgeColors[it.badgeVariant || 'default'])}>
-                              {it.badge}
-                            </span>
-                          )}
-                          {isExternal && (
-                            <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0 ml-1" />
-                          )}
-                        </a>
-                      );
-                    }
+                          <span className="truncate">{group.label}</span>
+                          <ChevronDown
+                            style={isGroupActive ? activeTextStyle : undefined}
+                            className={cn(
+                              'w-3.5 h-3.5 transition-transform duration-200 shrink-0',
+                              isGroupActive
+                                ? 'text-indigo-500 dark:text-indigo-400'
+                                : 'text-slate-400 group-hover/gh:text-slate-600 dark:group-hover/gh:text-slate-300',
+                              !isOpen && '-rotate-90'
+                            )}
+                          />
+                        </button>
+                      ) : (
+                        <div className="px-2.5 py-1 text-[10px] font-mono font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+                          {group.label}
+                        </div>
+                      ))}
 
-                    return (
-                      <button
-                        key={it.id}
-                        type="button"
-                        onClick={it.onClick}
-                        className={cn(
-                          'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
-                          it.active
-                            ? 'bg-indigo-600 text-white shadow-xs'
-                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
-                        )}
-                      >
-                        <span className="mr-2.5 shrink-0">{it.icon}</span>
-                        <span className="truncate flex-1 text-left">{it.label}</span>
-                        {it.badge !== undefined && (
-                          <span className={cn('text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5', badgeColors[it.badgeVariant || 'default'])}>
-                            {it.badge}
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+                    <div
+                      className={cn(
+                        'overflow-hidden transition-all duration-200',
+                        isOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
+                      )}
+                    >
+                      <div className="space-y-1 pt-0.5">
+                        {group.items.map((item) => {
+                          const badgeColor = item.active
+                            ? 'bg-white/20 text-white border-white/30'
+                            : badgeColors[item.badgeVariant || 'default'];
+                          const isExternal = item.external || item.target === '_blank';
+
+                          if (item.href) {
+                            return (
+                              <div key={item.id} className="relative group/navitem">
+                                <a
+                                  href={item.href}
+                                  target={item.target || (item.external ? '_blank' : undefined)}
+                                  rel={isExternal ? 'noopener noreferrer' : undefined}
+                                  onClick={item.onClick}
+                                  data-tour={item.dataTour}
+                                  style={item.active ? activePillStyle : undefined}
+                                  className={cn(
+                                    'w-full h-10 flex items-center gap-3 px-3.5 rounded-xl font-mono text-xs font-semibold transition-all duration-150 cursor-pointer select-none',
+                                    item.active
+                                      ? 'bg-indigo-600 text-white shadow-xs'
+                                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                                  )}
+                                >
+                                  <span
+                                    className={cn(
+                                      'w-5 h-5 shrink-0 flex items-center justify-center',
+                                      item.active
+                                        ? 'text-white'
+                                        : 'text-slate-400 dark:text-slate-500'
+                                    )}
+                                  >
+                                    {item.icon}
+                                  </span>
+                                  <span className="truncate flex-1 text-left">{item.label}</span>
+                                  {item.badge !== undefined && (
+                                    <span
+                                      className={cn(
+                                        'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold',
+                                        badgeColor
+                                      )}
+                                    >
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                  {isExternal && (
+                                    <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover/navitem:opacity-100 transition-opacity shrink-0 ml-1" />
+                                  )}
+                                </a>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div key={item.id} className="relative group/navitem">
+                              <button
+                                type="button"
+                                onClick={item.onClick}
+                                data-tour={item.dataTour}
+                                style={item.active ? activePillStyle : undefined}
+                                className={cn(
+                                  'w-full h-10 flex items-center gap-3 px-3.5 rounded-xl font-mono text-xs font-semibold transition-all duration-150 cursor-pointer select-none',
+                                  item.active
+                                    ? 'bg-indigo-600 text-white shadow-xs'
+                                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                                )}
+                              >
+                                <span
+                                  className={cn(
+                                    'w-5 h-5 shrink-0 flex items-center justify-center',
+                                    item.active
+                                      ? 'text-white'
+                                      : 'text-slate-400 dark:text-slate-500'
+                                  )}
+                                >
+                                  {item.icon}
+                                </span>
+                                <span className="truncate flex-1 text-left">{item.label}</span>
+                                {item.badge !== undefined && (
+                                  <span
+                                    className={cn(
+                                      'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold',
+                                      badgeColor
+                                    )}
+                                  >
+                                    {item.badge}
+                                  </span>
+                                )}
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              // Modo colapsado (w-16): muestra botón de grupo y Flyout Menu en hover
+              const groupIcon = group.icon || primaryItem?.icon;
+
+              return (
+                <div key={groupKey} className="relative group/flyout">
+                  <button
+                    type="button"
+                    onClick={primaryItem?.onClick}
+                    style={isGroupActive ? activePillStyle : undefined}
+                    className={cn(
+                      'w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer select-none',
+                      isGroupActive
+                        ? 'bg-indigo-600 text-white shadow-sm'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/80'
+                    )}
+                  >
+                    {groupIcon}
+                  </button>
+
+                  <div className="absolute left-full top-0 ml-3 w-60 p-2 bg-white dark:bg-[#0D121F] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl opacity-0 pointer-events-none group-hover/flyout:opacity-100 group-hover/flyout:pointer-events-auto transition-all duration-150 ease-out translate-x-1 group-hover/flyout:translate-x-0 z-50 before:absolute before:-left-3 before:top-0 before:w-3 before:h-full">
+                    {group.label && (
+                      <div className="px-2.5 py-1 border-b border-slate-100 dark:border-slate-800/70 mb-1.5 flex items-center justify-between">
+                        <span
+                          style={activeTextStyle}
+                          className="text-[10px] font-mono uppercase tracking-widest font-bold text-indigo-600 dark:text-indigo-400"
+                        >
+                          {group.label}
+                        </span>
+                      </div>
+                    )}
+                    <div className="space-y-0.5">
+                      {group.items.map((it) => {
+                        const isExternal = it.external || it.target === '_blank';
+
+                        if (it.href) {
+                          return (
+                            <a
+                              key={it.id}
+                              href={it.href}
+                              target={it.target || (it.external ? '_blank' : undefined)}
+                              rel={isExternal ? 'noopener noreferrer' : undefined}
+                              onClick={it.onClick}
+                              style={it.active ? activePillStyle : undefined}
+                              className={cn(
+                                'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
+                                it.active
+                                  ? 'bg-indigo-600 text-white shadow-xs'
+                                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                              )}
+                            >
+                              <span className="mr-2.5 shrink-0">{it.icon}</span>
+                              <span className="truncate flex-1 text-left">{it.label}</span>
+                              {it.badge !== undefined && (
+                                <span
+                                  className={cn(
+                                    'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5',
+                                    it.active
+                                      ? 'bg-white/20 text-white border-white/30'
+                                      : badgeColors[it.badgeVariant || 'default']
+                                  )}
+                                >
+                                  {it.badge}
+                                </span>
+                              )}
+                              {isExternal && (
+                                <ExternalLink className="w-3.5 h-3.5 opacity-50 group-hover:opacity-100 transition-opacity shrink-0 ml-1" />
+                              )}
+                            </a>
+                          );
+                        }
+
+                        return (
+                          <button
+                            key={it.id}
+                            type="button"
+                            onClick={it.onClick}
+                            style={it.active ? activePillStyle : undefined}
+                            className={cn(
+                              'w-full h-9 px-2.5 rounded-xl font-mono text-xs font-semibold flex items-center transition-colors cursor-pointer',
+                              it.active
+                                ? 'bg-indigo-600 text-white shadow-xs'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                            )}
+                          >
+                            <span className="mr-2.5 shrink-0">{it.icon}</span>
+                            <span className="truncate flex-1 text-left">{it.label}</span>
+                            {it.badge !== undefined && (
+                              <span
+                                className={cn(
+                                  'text-[10px] font-mono px-1.5 py-0.5 rounded-md border font-semibold ml-1.5',
+                                  it.active
+                                    ? 'bg-white/20 text-white border-white/30'
+                                    : badgeColors[it.badgeVariant || 'default']
+                                )}
+                              >
+                                {it.badge}
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+        </div>
 
-      {/* 3. Footer Slot (User menu, etc.) & Expand Button */}
-      <div className="border-t border-slate-200 dark:border-slate-800 p-2.5 shrink-0 bg-slate-50/50 dark:bg-slate-900/30">
-        {collapsed && onToggleCollapse && (
-          <div className="flex justify-center mb-2">
-            <button
-              type="button"
-              onClick={onToggleCollapse}
-              title="Expandir menú"
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              <PanelLeftOpen className="w-4 h-4" />
-            </button>
-          </div>
-        )}
-        {footer}
-      </div>
-    </aside>
-  );
+        {/* 3. Footer Slot (Perfil de Usuario y Botón Expandir) */}
+        <div className="border-t border-slate-200 dark:border-slate-800 p-3 shrink-0 bg-slate-50/70 dark:bg-slate-900/40">
+          {isCollapsed && onToggleCollapse && (
+            <div className="flex justify-center mb-2">
+              <button
+                type="button"
+                onClick={onToggleCollapse}
+                title="Expandir menú lateral"
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <PanelLeftOpen className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+          {footer}
+        </div>
+      </aside>
+    );
+  };
 
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden md:block shrink-0">{sidebarContent}</div>
+      <div className="hidden md:flex shrink-0">{renderSidebarPanel(false)}</div>
 
       {/* Mobile drawer with backdrop and smooth animations */}
       <div
         className={cn(
-          'fixed inset-0 z-50 md:hidden pointer-events-none',
-          mobileOpen && 'pointer-events-auto'
+          'fixed inset-0 z-50 md:hidden',
+          mobileOpen ? 'pointer-events-auto visible' : 'pointer-events-none invisible'
         )}
         aria-hidden={!mobileOpen}
       >
@@ -420,7 +518,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             mobileOpen ? 'translate-x-0' : '-translate-x-full'
           )}
         >
-          {sidebarContent}
+          {renderSidebarPanel(true)}
         </div>
       </div>
     </>

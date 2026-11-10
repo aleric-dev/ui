@@ -18,6 +18,10 @@
    - **NO ejecutes `git commit` ni `git push`** por iniciativa propia.
    - Mantén los cambios en el working tree para revisión del desarrollador.
 
+3. **Rol Central en la Tríada de Ingeniería Aleric Dev (`@aleric.dev/ui` + TanStack Query v5 + Arquitectura Hexagonal)**:
+   - `@aleric.dev/ui` es la **única fuente de verdad de componentes de UI, formularios y modales** para todos los proyectos de `aleric-dev` (`admin`, `crm`, `web`).
+   - Todo `<Modal>` soporta `isDirty?: boolean` para bloquear cierres accidentales sin guardar, y todo control de formulario (`Input`, `PasswordInput`, `Textarea`, `Select`, `FormField`) usa `font-sans` por defecto.
+
 ---
 
 ## 🎨 2. Estándar de Diseño Aleric Dev (Anti-IA Cliché & Base Clara)

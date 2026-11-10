@@ -196,9 +196,9 @@ export const Select: React.FC<SelectProps> = ({
   const isSmall = size === 'sm';
 
   return (
-    <div ref={containerRef} className={cn('relative text-left', className)} id={id}>
+    <div ref={containerRef} className={cn('relative text-left font-sans', className)} id={id}>
       {label && (
-        <label className="block text-xs font-mono font-medium text-slate-700 dark:text-slate-300 mb-1">
+        <label className="block text-xs font-sans font-semibold text-slate-700 dark:text-slate-300 mb-1">
           {label}
         </label>
       )}
@@ -209,16 +209,16 @@ export const Select: React.FC<SelectProps> = ({
         disabled={disabled}
         onClick={handleToggle}
         className={cn(
-          'w-full flex items-center justify-between gap-2 transition-all cursor-pointer font-mono',
-          isSmall ? 'px-2.5 py-1.5 text-xs rounded-lg' : 'px-3 py-2 text-xs rounded-xl',
-          'bg-slate-100 dark:bg-slate-900 border',
+          'w-full flex items-center justify-between gap-2 transition-all cursor-pointer font-sans',
+          isSmall ? 'px-2.5 py-1.5 text-xs rounded-lg' : 'px-3.5 py-2.5 text-sm rounded-xl',
+          'bg-slate-50/70 dark:bg-slate-900 border',
           error
             ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/20'
             : isOpen
             ? 'border-indigo-500 ring-2 ring-indigo-500/20 dark:border-indigo-500'
-            : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700',
+            : 'border-slate-300 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700',
           disabled && 'opacity-50 cursor-not-allowed',
-          'text-slate-800 dark:text-slate-200 focus:outline-none',
+          'text-slate-900 dark:text-white focus:outline-none',
           buttonClassName
         )}
       >
@@ -253,7 +253,7 @@ export const Select: React.FC<SelectProps> = ({
               zIndex: 10005,
             }}
             className={cn(
-              'max-h-64 overflow-y-auto rounded-xl bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800 shadow-2xl shadow-black/30 dark:shadow-black/70 p-1 font-mono text-xs animate-in fade-in zoom-in-95 duration-100 backdrop-blur-md',
+              'max-h-64 overflow-y-auto rounded-xl bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800 shadow-2xl shadow-black/30 dark:shadow-black/70 p-1 font-sans text-xs animate-in fade-in zoom-in-95 duration-100 backdrop-blur-md',
               dropdownClassName
             )}
           >
@@ -297,9 +297,9 @@ export const Select: React.FC<SelectProps> = ({
         )}
 
       {error ? (
-        <p className="text-[11px] font-mono text-rose-500 mt-1">{error}</p>
+        <p className="text-[11px] font-sans text-rose-500 mt-1">{error}</p>
       ) : helperText ? (
-        <p className="text-[11px] font-mono text-slate-500 mt-1">{helperText}</p>
+        <p className="text-[11px] font-sans text-slate-500 mt-1">{helperText}</p>
       ) : null}
     </div>
   );
