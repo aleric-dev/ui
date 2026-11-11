@@ -11,6 +11,13 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [0.6.0] - 2026-11-11
+
+### Added / Features
+- feat: add core ui component library atoms, molecules, organisms and layout templates (`d20acb4`)
+
+---
+
 ## [0.5.0] - 2026-11-04
 
 ### Added / Features
