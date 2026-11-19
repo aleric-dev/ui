@@ -11,6 +11,13 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [0.7.1] - 2026-11-19
+
+### Fixed / Bug Fixes
+- fix(ui): add vite-env.d.ts to resolve raw module imports during type checking (`cde852f`)
+
+---
+
 ## [0.7.0] - 2026-11-19
 
 ### Added / Features
