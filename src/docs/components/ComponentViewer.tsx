@@ -19,6 +19,8 @@ import {
   FormField,
   SearchInput,
   ConfirmDialog,
+  ConfirmSheetHost,
+  confirmSheet,
   EmptyState,
   MetricStatCard,
   MetricStrip,
@@ -276,6 +278,31 @@ export const ComponentViewer: React.FC<ComponentViewerProps> = ({ component }) =
               confirmText="Sí, eliminar"
               variant="danger"
             />
+          </div>
+        );
+
+      case 'confirm-sheet':
+        return (
+          <div>
+            <ConfirmSheetHost />
+            <Button
+              variant="primary"
+              onClick={() =>
+                confirmSheet({
+                  title: '¿Aprobar y cerrar esta liquidación?',
+                  description:
+                    'Confirmas haber recibido el efectivo y el inventario reportado. Esta acción no se puede deshacer.',
+                  confirmLabel: 'Sí, aprobar y cerrar',
+                  cancelLabel: 'Cancelar',
+                  confirmVariant: 'emerald',
+                  onConfirm: async () => {
+                    await new Promise((resolve) => setTimeout(resolve, 600));
+                  },
+                })
+              }
+            >
+              Probar ConfirmSheet Global
+            </Button>
           </div>
         );
 

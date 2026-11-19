@@ -82,7 +82,7 @@ Este repositorio posee dos misiones complementarias:
 Ejecutar siempre en el directorio raíz de `ui/`:
 
 ```bash
-# 1. Servidor de desarrollo local del Portal de Documentación (puerto 5190)
+# 1. Servidor de desarrollo local del Portal de Documentación (puerto 5185)
 npm run dev
 
 # 2. Compilación estática del Portal Web

@@ -31,11 +31,11 @@
     "README.md"
   ],
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5185",
     "build": "vite build",
     "build:lib": "vite build --config vite.config.lib.ts && tsc -p tsconfig.lib.json",
     "prepublishOnly": "npm run build:lib",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5185",
     "release:auto": "node scripts/auto-release.cjs",
     "release:dry": "node scripts/auto-release.cjs --dry-run",
     "release:patch": "node scripts/release.cjs patch",

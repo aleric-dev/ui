@@ -1,7 +1,25 @@
 import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Check } from 'lucide-react';
+import { ChevronDown, Check, Search, X } from 'lucide-react';
 import { cn } from '../../utils/cn';
+
+function extractNodeText(node: React.ReactNode): string {
+  if (node === null || node === undefined || typeof node === 'boolean') return '';
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(extractNodeText).join('');
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    return extractNodeText(node.props.children);
+  }
+  return '';
+}
+
+function normalizeSearchText(text: string): string {
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
 
 export interface SelectOption {
   value: string;
@@ -36,6 +54,9 @@ export interface SelectProps {
   name?: string;
   id?: string;
   size?: 'sm' | 'md';
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  emptySearchText?: string;
 }
 
 export const Select: React.FC<SelectProps> = ({
@@ -57,11 +78,16 @@ export const Select: React.FC<SelectProps> = ({
   name,
   id,
   size = 'md',
+  searchable = false,
+  searchPlaceholder = 'Escribir para filtrar...',
+  emptySearchText = 'Sin coincidencias',
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [coords, setCoords] = useState<{
     top?: number;
     bottom?: number;
@@ -117,19 +143,40 @@ export const Select: React.FC<SelectProps> = ({
     };
   }, []);
 
+  const filteredOptions = useMemo(() => {
+    if (!searchable) return parsedOptions;
+    const q = normalizeSearchText(searchQuery);
+    if (!q) return parsedOptions;
+    return parsedOptions.filter((opt) => {
+      const labelText = normalizeSearchText(extractNodeText(opt.label));
+      const valText = normalizeSearchText(String(opt.value));
+      return labelText.includes(q) || valText.includes(q);
+    });
+  }, [parsedOptions, searchable, searchQuery]);
+
   const handleToggle = () => {
     if (disabled) return;
     if (!isOpen) {
       const nextCoords = calculateCoords();
       if (nextCoords) {
+        setSearchQuery('');
         setCoords(nextCoords);
         setIsOpen(true);
       }
     } else {
       setIsOpen(false);
       setCoords(null);
+      setSearchQuery('');
     }
   };
+
+  useEffect(() => {
+    if (!isOpen || !searchable) return;
+    const raf = window.requestAnimationFrame(() => {
+      searchInputRef.current?.focus();
+    });
+    return () => window.cancelAnimationFrame(raf);
+  }, [isOpen, searchable]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -147,6 +194,7 @@ export const Select: React.FC<SelectProps> = ({
       ) {
         setIsOpen(false);
         setCoords(null);
+        setSearchQuery('');
       }
     };
 
@@ -154,6 +202,7 @@ export const Select: React.FC<SelectProps> = ({
       if (event.key === 'Escape') {
         setIsOpen(false);
         setCoords(null);
+        setSearchQuery('');
       }
     };
 
@@ -178,6 +227,7 @@ export const Select: React.FC<SelectProps> = ({
     setInternalValue(option.value);
     setIsOpen(false);
     setCoords(null);
+    setSearchQuery('');
 
     if (onChange) {
       onChange({
@@ -253,45 +303,86 @@ export const Select: React.FC<SelectProps> = ({
               zIndex: 10005,
             }}
             className={cn(
-              'max-h-64 overflow-y-auto rounded-xl bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800 shadow-2xl shadow-black/30 dark:shadow-black/70 p-1 font-sans text-xs animate-in fade-in zoom-in-95 duration-100 backdrop-blur-md',
+              'max-h-72 flex flex-col overflow-hidden rounded-xl bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800 shadow-2xl shadow-black/30 dark:shadow-black/70 font-sans text-xs animate-in fade-in zoom-in-95 duration-100 backdrop-blur-md',
               dropdownClassName
             )}
           >
-            {parsedOptions.length === 0 ? (
-              <div className="px-3 py-2 text-slate-400 text-center text-[11px]">
-                No hay opciones
+            {searchable && (
+              <div className="p-1.5 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-[#0D121F] shrink-0">
+                <div className="relative flex items-center">
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 pointer-events-none" />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const firstMatch = filteredOptions.find(
+                          (o) => !o.disabled && String(o.value) !== ''
+                        ) ?? filteredOptions.find((o) => !o.disabled);
+                        if (firstMatch) {
+                          handleSelect(firstMatch);
+                        }
+                      }
+                    }}
+                    placeholder={searchPlaceholder}
+                    className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-sans text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-indigo-500"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchQuery('');
+                        searchInputRef.current?.focus();
+                      }}
+                      className="absolute right-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
-            ) : (
-              parsedOptions.map((opt) => {
-                const isSelected = String(opt.value) === String(currentValue);
-
-                return (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    disabled={opt.disabled}
-                    onClick={() => handleSelect(opt)}
-                    className={cn(
-                      'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer',
-                      opt.disabled
-                        ? 'opacity-40 cursor-not-allowed'
-                        : isSelected
-                        ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold'
-                        : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
-                    )}
-                  >
-                    <div className="flex items-center gap-2 min-w-0 truncate">
-                      {opt.icon && <span className="shrink-0">{opt.icon}</span>}
-                      <span className="truncate">{opt.label}</span>
-                    </div>
-
-                    {isSelected && (
-                      <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0 ml-2" />
-                    )}
-                  </button>
-                );
-              })
             )}
+
+            <div className="overflow-y-auto p-1 flex-1">
+              {filteredOptions.length === 0 ? (
+                <div className="px-3 py-2.5 text-slate-400 text-center text-[11px]">
+                  {parsedOptions.length === 0 ? 'No hay opciones' : emptySearchText}
+                </div>
+              ) : (
+                filteredOptions.map((opt) => {
+                  const isSelected = String(opt.value) === String(currentValue);
+
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      disabled={opt.disabled}
+                      onClick={() => handleSelect(opt)}
+                      className={cn(
+                        'w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg text-left transition-colors cursor-pointer',
+                        opt.disabled
+                          ? 'opacity-40 cursor-not-allowed'
+                          : isSelected
+                          ? 'bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 font-bold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white'
+                      )}
+                    >
+                      <div className="flex items-center gap-2 min-w-0 truncate">
+                        {opt.icon && <span className="shrink-0">{opt.icon}</span>}
+                        <span className="truncate">{opt.label}</span>
+                      </div>
+
+                      {isSelected && (
+                        <Check className="w-3.5 h-3.5 text-indigo-500 shrink-0 ml-2" />
+                      )}
+                    </button>
+                  );
+                })
+              )}
+            </div>
           </div>,
           document.body
         )}

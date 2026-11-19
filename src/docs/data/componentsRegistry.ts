@@ -305,6 +305,36 @@ export const COMPONENTS_REGISTRY: ComponentItem[] = [
     ],
   },
   {
+    id: 'confirm-sheet',
+    name: 'ConfirmSheet',
+    category: 'molecules',
+    description: 'Bottom sheet de confirmación móvil/responsivo con Portal a document.body y Host global (ConfirmSheetHost + confirmSheet).',
+    cliCommand: 'npx @aleric.dev/ui add confirm-sheet',
+    importCode: "import { ConfirmSheetHost, confirmSheet } from '@aleric.dev/ui';",
+    exampleCode: `// 1. Montar una sola vez en la raíz (App.tsx):
+// <ConfirmSheetHost />
+
+// 2. Invocar desde cualquier vista o botón:
+confirmSheet({
+  title: '¿Aprobar y cerrar esta liquidación?',
+  description: 'Confirmas haber recibido el efectivo y el inventario en nevera.',
+  confirmLabel: 'Sí, aprobar y cerrar',
+  cancelLabel: 'Cancelar',
+  confirmVariant: 'emerald',
+  onConfirm: async () => {
+    await approveSettlement();
+  },
+});`,
+    props: [
+      { name: 'title', type: 'ReactNode', default: 'required', description: 'Título principal de la confirmación.' },
+      { name: 'description', type: 'ReactNode', default: 'undefined', description: 'Texto descriptivo del impacto de la acción.' },
+      { name: 'confirmLabel', type: 'string', default: "'Confirmar'", description: 'Texto del botón de acción principal.' },
+      { name: 'cancelLabel', type: 'string', default: "'Cancelar'", description: 'Texto del botón secundario para cerrar.' },
+      { name: 'confirmVariant', type: "'amber' | 'emerald' | 'danger' | 'indigo'", default: "'indigo'", description: 'Esquema de color para el icono y botón principal.' },
+      { name: 'onConfirm', type: '() => void | Promise<void>', default: 'required', description: 'Acción a ejecutar; soporta promesas con estado isConfirming automático en ConfirmSheetHost.' },
+    ],
+  },
+  {
     id: 'empty-state',
     name: 'EmptyState',
     category: 'molecules',
