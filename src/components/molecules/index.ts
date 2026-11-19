@@ -1,6 +1,7 @@
 export * from './FormField';
 export * from './SearchInput';
 export * from './ConfirmDialog';
+export * from './ConfirmSheet';
 export * from './EmptyState';
 export * from './MetricStatCard';
 export * from './MetricStrip';
