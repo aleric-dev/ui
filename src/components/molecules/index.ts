@@ -9,3 +9,4 @@ export * from './DatePicker';
 export * from './MarkdownRenderer';
 export * from './ModalSplitLayout';
 export * from './ModalStepLayout';
+export * from './QuantityStepper';
