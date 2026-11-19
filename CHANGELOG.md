@@ -11,6 +11,17 @@ y este proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.
 
 ---
 
+## [0.7.0] - 2026-11-19
+
+### Added / Features
+- feat(molecules): add ConfirmSheet, ConfirmSheetHost and confirmSheet imperative API (`00a8756`)
+- feat: add Select component and QuantityStepper molecule (`d159782`)
+
+### Changed / Improvements
+- refactor: update dev and preview server port to 5185 (`d70d600`)
+
+---
+
 ## [0.6.0] - 2026-11-11
 
 ### Added / Features
